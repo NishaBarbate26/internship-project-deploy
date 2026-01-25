@@ -3,84 +3,83 @@
 @tailwind utilities;
 
 @layer components {
+  /* Smooth Fade-in Animation */
+  .fade-in-up {
+    animation: fadeInUp 0.8s ease-out forwards;
+  }
 
-    /* Smooth Fade-in Animation */
-    .fade-in-up {
-        animation: fadeInUp 0.8s ease-out forwards;
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
     }
 
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+  /* Image Zoom Effect */
+  .img-zoom-container {
+    @apply overflow-hidden rounded-2xl;
+  }
+
+  .img-zoom-container img {
+    @apply transition-transform duration-500 ease-in-out;
+  }
+
+  .img-zoom-container:hover img {
+    @apply scale-110;
+  }
+
+  /* Glass Card */
+  .glass-card {
+    @apply bg-white/70 backdrop-blur-lg border border-white/20 shadow-xl;
+  }
+
+  /* Floating Animation for Hero Image */
+  .floating {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0% {
+      transform: translateY(0px);
     }
 
-    /* Image Zoom Effect */
-    .img-zoom-container {
-        @apply overflow-hidden rounded-2xl;
+    50% {
+      transform: translateY(-20px);
     }
 
-    .img-zoom-container img {
-        @apply transition-transform duration-500 ease-in-out;
+    100% {
+      transform: translateY(0px);
+    }
+  }
+  .swiper-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Ensure NO transform/rotate is here */
+    border-radius: 12px;
+  }
+
+  /* Optional: Keep the floating animation but remove rotation */
+  .floating {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0% {
+      transform: translateY(0px);
     }
 
-    .img-zoom-container:hover img {
-        @apply scale-110;
+    50% {
+      transform: translateY(-20px);
     }
 
-    /* Glass Card */
-    .glass-card {
-        @apply bg-white/70 backdrop-blur-lg border border-white/20 shadow-xl;
+    100% {
+      transform: translateY(0px);
     }
-
-    /* Floating Animation for Hero Image */
-    .floating {
-        animation: float 6s ease-in-out infinite;
-    }
-
-    @keyframes float {
-        0% {
-            transform: translateY(0px);
-        }
-
-        50% {
-            transform: translateY(-20px);
-        }
-
-        100% {
-            transform: translateY(0px);
-        }
-    }
-                .swiper-slide img {
-                    width: 100%;
-                    height: 100%;
-                    object-fit: cover;
-                    /* Ensure NO transform/rotate is here */
-                    border-radius: 12px;
-                }
-        
-                /* Optional: Keep the floating animation but remove rotation */
-                .floating {
-                    animation: float 6s ease-in-out infinite;
-                }
-        
-                @keyframes float {
-                    0% {
-                        transform: translateY(0px);
-                    }
-        
-                    50% {
-                        transform: translateY(-20px);
-                    }
-        
-                    100% {
-                        transform: translateY(0px);
-                    }
-                }
+  }
 }

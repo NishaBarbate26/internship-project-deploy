@@ -1,12 +1,33 @@
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 
-const Navbar = () => (
-  <nav className="flex justify-between items-center p-6 bg-white shadow-sm sticky top-0 z-50">
-    <div className="text-2xl font-bold text-blue-600">TravelAI</div>
-    <div className="space-x-6">
-      <Link to="/login" className="text-gray-600 hover:text-blue-600">Login</Link>
-      <Link to="/signup" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Sign Up</Link>
-    </div>
-  </nav>
-);
+const Navbar = () => {
+    return (
+        <nav className="absolute top-0 left-0 w-full z-50">
+            <div className="w-full px-10 py-6 flex justify-end">
+                <div className="flex gap-10 text-white text-base font-medium tracking-wide">
+
+                    {/* Login */}
+                    <Link to="/login" className="relative group">
+                        Login
+                        <span
+                            className="absolute left-0 -bottom-1 w-0 h-[2px] bg-white
+                         transition-all duration-300 group-hover:w-full"
+                        />
+                    </Link>
+
+                    {/* Sign Up */}
+                    <Link to="/signup" className="relative group">
+                        Sign Up
+                        <span
+                            className="absolute left-0 -bottom-1 w-0 h-[2px] bg-white
+                         transition-all duration-300 group-hover:w-full"
+                        />
+                    </Link>
+
+                </div>
+            </div>
+        </nav>
+    );
+};
+
 export default Navbar;

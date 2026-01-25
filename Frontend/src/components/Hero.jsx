@@ -1,64 +1,48 @@
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Autoplay, EffectFade, Pagination } from 'swiper/modules';
+const Hero = () => {
+    return (
+        <section className="relative h-[75vh] w-full overflow-hidden">
 
-// Import Swiper styles
-import 'swiper/css';
-import 'swiper/css/effect-fade';
-import 'swiper/css/pagination';
-// Frontend/src/components/Hero.jsx
-const Hero = () => (
-    <section className="relative pt-32 pb-20 px-6">
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
-            <div className="fade-in-up">
-                <h1 className="text-6xl font-extrabold text-gray-900 mb-6 leading-tight">
-                    Your Journey, <br />
-                    <span className="text-indigo-600">Reimagined by AI.</span>
+            {/* Background Image */}
+            <img
+                src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=2000"
+                alt="Beach"
+                className="absolute inset-0 w-full h-full object-cover"
+            />
+
+            {/* Overlay */}
+            <div className="absolute inset-0 bg-black/30" />
+
+            {/* Content */}
+            <div className="relative z-10 h-full flex flex-col justify-center items-center text-center px-6">
+                <h1 className="text-white text-6xl font-extrabold tracking-wide">
+                    TRAVEL JOURNEY
                 </h1>
-                <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-                    Stop spending hours on Google. Our RAG-powered assistant builds 100% personalized itineraries using real-world data and hidden gems.
+
+                <span className="text-white text-4xl italic font-light mt-2">
+                    Guide
+                </span>
+
+                <p className="text-white/90 text-lg mt-4">
+                    Your journey starts here
                 </p>
-                <div className="flex gap-4">
-                    <button className="bg-indigo-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200">
-                        Start Planning
+
+                {/* Search Bar */}
+                <div className="mt-8 flex items-center bg-white rounded-full shadow-lg overflow-hidden w-full max-w-xl">
+                    <input
+                        type="text"
+                        placeholder="Search for a destination or activity..."
+                        className="flex-1 px-6 py-4 outline-none text-gray-700"
+                    />
+                    <button className="bg-blue-600 text-white px-8 py-4 font-semibold hover:bg-blue-700 transition">
+                        Explore
                     </button>
                 </div>
             </div>
 
-            <div className="relative floating hidden lg:block w-full max-w-lg ml-auto">
-                {/* REMOVED rotate-3 HERE for a perfectly stable block */}
-                <div className="img-zoom-container shadow-2xl overflow-hidden rounded-2xl border-4 border-white">
-                    <Swiper
-                        spaceBetween={0}
-                        effect={'fade'}
-                        centeredSlides={true}
-                        autoplay={{
-                            delay: 3500,
-                            disableOnInteraction: false,
-                        }}
-                        pagination={{
-                            clickable: true,
-                        }}
-                        modules={[Autoplay, EffectFade, Pagination]}
-                        className="h-[500px] w-full"
-                    >
-                        <SwiperSlide>
-                            <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=1000" className="w-full h-full object-cover" alt="Destination 1" />
-                        </SwiperSlide>
-                        <SwiperSlide>
-                            <img src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=1000" className="w-full h-full object-cover" alt="Destination 2" />
-                        </SwiperSlide>
-                        <SwiperSlide>
-                            <img src="https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&q=80&w=1000" className="w-full h-full object-cover" alt="Destination 3" />
-                        </SwiperSlide>
-                        <SwiperSlide>
-                            <img src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&q=80&w=1000" className="w-full h-full object-cover" alt="Destination 4" />
-                        </SwiperSlide>
-                    </Swiper>
-                </div>
+            {/* Bottom Fade (UX hint that content continues) */}
+            <div className="absolute bottom-0 left-0 w-full h-40 bg-gradient-to-t from-whit-100 via-slate-100/70 to-transparent" />
+        </section>
+    );
+};
 
-
-            </div>
-        </div>
-    </section>
-);
 export default Hero;
