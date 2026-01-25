@@ -1,2 +1,86 @@
-/* Tailwind CSS is being used for styling */
-/* This file can be kept empty or removed if not needed */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+
+    /* Smooth Fade-in Animation */
+    .fade-in-up {
+        animation: fadeInUp 0.8s ease-out forwards;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Image Zoom Effect */
+    .img-zoom-container {
+        @apply overflow-hidden rounded-2xl;
+    }
+
+    .img-zoom-container img {
+        @apply transition-transform duration-500 ease-in-out;
+    }
+
+    .img-zoom-container:hover img {
+        @apply scale-110;
+    }
+
+    /* Glass Card */
+    .glass-card {
+        @apply bg-white/70 backdrop-blur-lg border border-white/20 shadow-xl;
+    }
+
+    /* Floating Animation for Hero Image */
+    .floating {
+        animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0% {
+            transform: translateY(0px);
+        }
+
+        50% {
+            transform: translateY(-20px);
+        }
+
+        100% {
+            transform: translateY(0px);
+        }
+    }
+                .swiper-slide img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    /* Ensure NO transform/rotate is here */
+                    border-radius: 12px;
+                }
+        
+                /* Optional: Keep the floating animation but remove rotation */
+                .floating {
+                    animation: float 6s ease-in-out infinite;
+                }
+        
+                @keyframes float {
+                    0% {
+                        transform: translateY(0px);
+                    }
+        
+                    50% {
+                        transform: translateY(-20px);
+                    }
+        
+                    100% {
+                        transform: translateY(0px);
+                    }
+                }
+}

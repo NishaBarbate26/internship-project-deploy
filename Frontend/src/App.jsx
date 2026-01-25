@@ -1,11 +1,16 @@
-import QuoteGenerator from "./components/QuoteGenerator";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Landing from "./pages/Landing";
 
 function App() {
   return (
-    <div className="min-h-screen flex items-center justify-center p-8 bg-gray-50 dark:bg-gray-900">
-      <QuoteGenerator />
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        {/* Placeholder routes for next issues */}
+        <Route path="/login" element={<div>Login Page</div>} />
+        <Route path="/signup" element={<div>Signup Page</div>} />
+      </Routes>
+    </Router>
   );
 }
-
 export default App;
