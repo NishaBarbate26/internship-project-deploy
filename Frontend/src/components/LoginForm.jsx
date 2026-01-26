@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { auth } from "../config/firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 export default function LoginForm() {
     const [email, setEmail] = useState("");
@@ -22,7 +24,6 @@ export default function LoginForm() {
         }
     }, [success, navigate]);
 
-    // Simple password strength logic
     const getPasswordStrength = (pwd) => {
         if (pwd.length > 10) return "Strong";
         if (pwd.length > 5) return "Medium";
@@ -30,58 +31,57 @@ export default function LoginForm() {
         return "";
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
         setSuccess("");
         setLoading(true);
 
-        // Simulate network delay
-        setTimeout(() => {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-            if (!email) {
-                setError("Email is required.");
-                setLoading(false);
-                return;
-            }
-            if (!emailRegex.test(email)) {
-                setError("Please enter a valid email address.");
-                setLoading(false);
-                return;
-            }
+        if (!email) {
+            setError("Email is required.");
+            setLoading(false);
+            return;
+        }
+        if (!emailRegex.test(email)) {
+            setError("Please enter a valid email address.");
+            setLoading(false);
+            return;
+        }
+        if (!password) {
+            setError("Password is required.");
+            setLoading(false);
+            return;
+        }
+        if (password.length < 6) {
+            setError("Password must be at least 6 characters long.");
+            setLoading(false);
+            return;
+        }
+        if (!/[A-Za-z]/.test(password)) {
+            setError("Password must contain at least one letter.");
+            setLoading(false);
+            return;
+        }
+        if (!/[0-9]/.test(password)) {
+            setError("Password must contain at least one number.");
+            setLoading(false);
+            return;
+        }
 
-            if (!password) {
-                setError("Password is required.");
-                setLoading(false);
-                return;
-            }
-            if (password.length < 6) {
-                setError("Password must be at least 6 characters long.");
-                setLoading(false);
-                return;
-            }
-            if (!/[A-Za-z]/.test(password)) {
-                setError("Password must contain at least one letter.");
-                setLoading(false);
-                return;
-            }
-            if (!/[0-9]/.test(password)) {
-                setError("Password must contain at least one number.");
-                setLoading(false);
-                return;
-            }
-
-            // Success scenario
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
             setSuccess("Login successful!");
             setLoading(false);
             setEmail("");
             setPassword("");
             setRememberMe(false);
             setShowPassword(false);
-
-            // Here you could save "rememberMe" info to localStorage/sessionStorage if integrating auth
-        }, 1500);
+        } catch (err) {
+            setError(err.message || "Failed to login.");
+            setLoading(false);
+        }
     };
 
     return (
@@ -143,7 +143,6 @@ export default function LoginForm() {
                     }
                 />
 
-                {/* Password strength */}
                 {password && (
                     <p className="text-xs mt-1 text-white">
                         Password strength:{" "}
@@ -161,7 +160,6 @@ export default function LoginForm() {
                     </p>
                 )}
 
-                {/* Remember Me */}
                 <label
                     htmlFor="rememberMe"
                     className="text-white text-sm flex items-center gap-2 mt-4 select-none cursor-pointer"
@@ -176,14 +174,11 @@ export default function LoginForm() {
                     Remember Me
                 </label>
 
-                {/* Submit Button */}
                 <div className="mt-6">
                     <button
                         type="submit"
                         disabled={loading}
-                        className={`w-full py-2 rounded text-white font-semibold justify-center items-center inline-flex ${loading
-                            ? "bg-gray-400 cursor-not-allowed"
-                            : "bg-blue-600 hover:bg-blue-700"
+                        className={`w-full py-2 rounded text-white font-semibold justify-center items-center inline-flex ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
                             } transition`}
                         aria-busy={loading}
                     >
@@ -214,7 +209,6 @@ export default function LoginForm() {
                     </button>
                 </div>
 
-                {/* Error Message */}
                 {error && (
                     <p
                         id="form-error"
@@ -225,7 +219,6 @@ export default function LoginForm() {
                     </p>
                 )}
 
-                {/* Success Message */}
                 {success && (
                     <p
                         id="form-success"

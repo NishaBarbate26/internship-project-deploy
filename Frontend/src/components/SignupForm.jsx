@@ -1,16 +1,19 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { auth } from "../config/firebase";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 
 export default function SignupForm() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [rememberMe, setRememberMe] = useState(false); // optional on signup, can remove if you want
+    const [rememberMe, setRememberMe] = useState(false); // optional
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
     const [loading, setLoading] = useState(false);
 
-    // Simple password strength logic
+    const navigate = useNavigate();
+
     const getPasswordStrength = (pwd) => {
         if (pwd.length > 10) return "Strong";
         if (pwd.length > 5) return "Medium";
@@ -18,54 +21,61 @@ export default function SignupForm() {
         return "";
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
         setSuccess("");
         setLoading(true);
 
-        setTimeout(() => {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-            if (!email) {
-                setError("Email is required.");
-                setLoading(false);
-                return;
-            }
-            if (!emailRegex.test(email)) {
-                setError("Please enter a valid email address.");
-                setLoading(false);
-                return;
-            }
-
-            if (!password) {
-                setError("Password is required.");
-                setLoading(false);
-                return;
-            }
-            if (password.length < 6) {
-                setError("Password must be at least 6 characters long.");
-                setLoading(false);
-                return;
-            }
-            if (!/[A-Za-z]/.test(password)) {
-                setError("Password must contain at least one letter.");
-                setLoading(false);
-                return;
-            }
-            if (!/[0-9]/.test(password)) {
-                setError("Password must contain at least one number.");
-                setLoading(false);
-                return;
-            }
-
-            setSuccess("Account created successfully!");
+        if (!email) {
+            setError("Email is required.");
             setLoading(false);
+            return;
+        }
+        if (!emailRegex.test(email)) {
+            setError("Please enter a valid email address.");
+            setLoading(false);
+            return;
+        }
+        if (!password) {
+            setError("Password is required.");
+            setLoading(false);
+            return;
+        }
+        if (password.length < 6) {
+            setError("Password must be at least 6 characters long.");
+            setLoading(false);
+            return;
+        }
+        if (!/[A-Za-z]/.test(password)) {
+            setError("Password must contain at least one letter.");
+            setLoading(false);
+            return;
+        }
+        if (!/[0-9]/.test(password)) {
+            setError("Password must contain at least one number.");
+            setLoading(false);
+            return;
+        }
+
+        try {
+            await createUserWithEmailAndPassword(auth, email, password);
+            setSuccess("Account created successfully!");
             setEmail("");
             setPassword("");
             setRememberMe(false);
             setShowPassword(false);
-        }, 1500);
+            setLoading(false);
+            // Redirect to login or home after a delay
+            setTimeout(() => {
+                navigate("/login");
+            }, 2000);
+        } catch (err) {
+            setError(err.message || "Failed to create account.");
+            setLoading(false);
+        }
     };
 
     return (
@@ -127,7 +137,6 @@ export default function SignupForm() {
                     }
                 />
 
-                {/* Password strength */}
                 {password && (
                     <p className="text-xs mt-1 text-white">
                         Password strength:{" "}
@@ -164,9 +173,7 @@ export default function SignupForm() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className={`w-full py-2 rounded text-white font-semibold justify-center items-center inline-flex ${loading
-                            ? "bg-gray-400 cursor-not-allowed"
-                            : "bg-blue-600 hover:bg-blue-700"
+                        className={`w-full py-2 rounded text-white font-semibold justify-center items-center inline-flex ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
                             } transition`}
                         aria-busy={loading}
                     >
@@ -197,7 +204,6 @@ export default function SignupForm() {
                     </button>
                 </div>
 
-                {/* Error Message */}
                 {error && (
                     <p
                         id="form-error"
@@ -208,7 +214,6 @@ export default function SignupForm() {
                     </p>
                 )}
 
-                {/* Success Message */}
                 {success && (
                     <p
                         id="form-success"
