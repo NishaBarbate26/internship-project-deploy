@@ -1,7 +1,8 @@
+// src/components/LoginForm.jsx
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { auth } from "../config/firebase";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, setPersistence, browserLocalPersistence, browserSessionPersistence } from "firebase/auth";
 
 export default function LoginForm() {
     const [email, setEmail] = useState("");
@@ -9,20 +10,27 @@ export default function LoginForm() {
     const [rememberMe, setRememberMe] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState("");
-    const [success, setSuccess] = useState("");
     const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
 
-    useEffect(() => {
-        if (success) {
-            const timer = setTimeout(() => {
-                navigate("/"); // Redirect after success message
-            }, 2000);
-
-            return () => clearTimeout(timer);
+    // Map Firebase error codes to friendly messages
+    const getFriendlyErrorMessage = (code) => {
+        switch (code) {
+            case "auth/invalid-email":
+                return "Invalid email format.";
+            case "auth/user-disabled":
+                return "This user account has been disabled.";
+            case "auth/user-not-found":
+                return "User not found. Please sign up first.";
+            case "auth/wrong-password":
+                return "Incorrect password. Please try again.";
+            case "auth/too-many-requests":
+                return "Too many login attempts. Please try again later.";
+            default:
+                return "Failed to login. Please try again.";
         }
-    }, [success, navigate]);
+    };
 
     const getPasswordStrength = (pwd) => {
         if (pwd.length > 10) return "Strong";
@@ -34,7 +42,6 @@ export default function LoginForm() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
-        setSuccess("");
         setLoading(true);
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -71,15 +78,15 @@ export default function LoginForm() {
         }
 
         try {
+            // Set persistence based on rememberMe checkbox
+            await setPersistence(auth, rememberMe ? browserLocalPersistence : browserSessionPersistence);
+
             await signInWithEmailAndPassword(auth, email, password);
-            setSuccess("Login successful!");
-            setLoading(false);
-            setEmail("");
-            setPassword("");
-            setRememberMe(false);
-            setShowPassword(false);
+
+            // Redirect to dashboard on success
+            navigate("/dashboard");
         } catch (err) {
-            setError(err.message || "Failed to login.");
+            setError(getFriendlyErrorMessage(err.code));
             setLoading(false);
         }
     };
@@ -97,7 +104,7 @@ export default function LoginForm() {
                 Login to Your Account
             </h2>
 
-            <form onSubmit={handleSubmit} aria-describedby="form-error form-success">
+            <form onSubmit={handleSubmit} aria-describedby="form-error">
                 <label htmlFor="email" className="text-white text-sm">
                     Email
                 </label>
@@ -113,6 +120,7 @@ export default function LoginForm() {
                     aria-describedby={
                         error.toLowerCase().includes("email") ? "form-error" : undefined
                     }
+                    autoComplete="email"
                 />
 
                 <label
@@ -141,6 +149,7 @@ export default function LoginForm() {
                     aria-describedby={
                         error.toLowerCase().includes("password") ? "form-error" : undefined
                     }
+                    autoComplete="current-password"
                 />
 
                 {password && (
@@ -216,16 +225,6 @@ export default function LoginForm() {
                         className="text-red-600 text-sm mt-3 text-center"
                     >
                         {error}
-                    </p>
-                )}
-
-                {success && (
-                    <p
-                        id="form-success"
-                        role="alert"
-                        className="text-black text-sm mt-3 text-center font-medium"
-                    >
-                        {success}
                     </p>
                 )}
             </form>
