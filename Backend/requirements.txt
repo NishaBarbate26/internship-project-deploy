@@ -3,3 +3,6 @@ uvicorn
 google-generativeai
 python-dotenv
 sqlalchemy
+langchain
+langchain-google-genai
+langchain-core
