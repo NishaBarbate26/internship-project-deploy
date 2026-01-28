@@ -1,28 +1,25 @@
 import os
 import json
 from typing import List, Optional
-
 from fastapi import FastAPI, HTTPException, Header
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
 import google.generativeai as genai
-
 from firebase_admin import auth as firebase_auth
 from config.firebase_admin import firebase_admin
 from database.database import init_db
 from services.itinerary_service import (
-    save_itinerary,
-    get_itineraries_by_user   # ✅ FIXED IMPORT
+    save_itinerary, 
+    get_itineraries_by_user,
+    get_itinerary_by_id  # NEW IMPORT
 )
 
 # --------------------------------------------------
 # Load environment variables
 # --------------------------------------------------
 load_dotenv()
-
 api_key = os.getenv("GOOGLE_API_KEY")
-
 if not api_key:
     print("Warning: GOOGLE_API_KEY not found")
     genai_configured = False
@@ -68,9 +65,7 @@ class TravelPreferenceRequest(BaseModel):
 # --------------------------------------------------
 def build_itinerary_prompt(data: TravelPreferenceRequest) -> str:
     return f"""
-You are a professional travel planner.
-Return ONLY valid JSON.
-
+You are a professional travel planner. Return ONLY valid JSON.
 Destination: {data.destination}
 Dates: {data.start_date} to {data.end_date}
 Travel style: {data.travel_style}
@@ -114,24 +109,19 @@ async def generate_itinerary(
 ):
     if not genai_configured:
         raise HTTPException(status_code=500, detail="Google API key not configured")
-
     try:
         if not authorization:
             raise HTTPException(status_code=401, detail="Authorization header missing")
-
         token = authorization.replace("Bearer ", "")
         decoded_token = firebase_auth.verify_id_token(token)
-
         user_email = decoded_token.get("email")
         if not user_email:
             raise HTTPException(status_code=401, detail="User email not found")
 
         model = genai.GenerativeModel("gemini-2.5-flash")
         prompt = build_itinerary_prompt(data)
-
         response = model.generate_content(prompt)
         raw_text = response.text.strip()
-
         if raw_text.startswith("```"):
             raw_text = raw_text.replace("```json", "").replace("```", "").strip()
 
@@ -184,6 +174,49 @@ async def get_user_itineraries(
         return {
             "success": True,
             "data": itineraries
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# --------------------------------------------------
+# NEW ENDPOINT: GET SINGLE ITINERARY BY ID
+# --------------------------------------------------
+@app.get("/api/itineraries/{itinerary_id}")
+async def get_single_itinerary(
+    itinerary_id: int,
+    authorization: str = Header(None, alias="Authorization")
+):
+    """
+    Retrieve a single itinerary by ID.
+    Validates that the itinerary belongs to the authenticated user.
+    """
+    try:
+        if not authorization:
+            raise HTTPException(status_code=401, detail="Authorization header missing")
+
+        token = authorization.replace("Bearer ", "")
+        decoded_token = firebase_auth.verify_id_token(token)
+
+        user_email = decoded_token.get("email")
+        if not user_email:
+            raise HTTPException(status_code=401, detail="Unauthorized")
+
+        # Fetch itinerary with ownership validation
+        itinerary = get_itinerary_by_id(itinerary_id, user_email)
+        
+        if not itinerary:
+            raise HTTPException(
+                status_code=404, 
+                detail="Itinerary not found or access denied"
+            )
+
+        return {
+            "success": True,
+            "data": itinerary
         }
 
     except HTTPException:

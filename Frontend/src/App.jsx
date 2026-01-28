@@ -9,7 +9,7 @@ import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import CreateItinerary from "./pages/CreateItinerary";
-import ItineraryDetails from "./pages/ItineraryDetails"; // <-- import here
+import ItineraryDetails from "./pages/ItineraryDetails";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 export default function App() {
@@ -27,12 +27,23 @@ export default function App() {
             </ProtectedRoute>
           }
         />
-        <Route path="/create-itinerary" element={<CreateItinerary />} />
+        <Route
+          path="/create-itinerary"
+          element={
+            <ProtectedRoute>
+              <CreateItinerary />
+            </ProtectedRoute>
+          }
+        />
+        {/* Protected route for itinerary details */}
         <Route
           path="/itinerary-details/:itinerary_id"
-          element={<ItineraryDetails />}
-        />{" "}
-        {/* <-- new */}
+          element={
+            <ProtectedRoute>
+              <ItineraryDetails />
+            </ProtectedRoute>
+          }
+        />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
