@@ -703,3 +703,37 @@ def process_chat_and_update(
         "updated_preferences": result["updated_preferences"],
         "chat_history": get_chat_history(itinerary_id)
     }
+
+# --------------------------------------------------
+# NEW: DELETE ITINERARY (Cascading)
+# --------------------------------------------------
+def delete_itinerary(itinerary_id: int, user_email: str) -> bool:
+    """
+    Deletes the itinerary and all associated chat history.
+    Validates ownership before performing deletion.
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        # First check ownership
+        cursor.execute("SELECT user_id FROM itineraries WHERE id = ?", (itinerary_id,))
+        row = cursor.fetchone()
+        
+        if not row or row[0] != user_email:
+            return False
+
+        # Delete associated chat messages first (data integrity)
+        cursor.execute("DELETE FROM chat_messages WHERE itinerary_id = ?", (itinerary_id,))
+        
+        # Delete the itinerary itself
+        cursor.execute("DELETE FROM itineraries WHERE id = ?", (itinerary_id,))
+        
+        conn.commit()
+        return True
+    except Exception as e:
+        print(f"Database error during deletion: {e}")
+        conn.rollback()
+        return False
+    finally:
+        conn.close()

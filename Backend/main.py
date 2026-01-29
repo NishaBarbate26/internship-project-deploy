@@ -2,7 +2,7 @@ import os
 import json
 from typing import List, Optional
 
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
@@ -19,8 +19,10 @@ from services.itinerary_service import (
     get_itineraries_by_user,
     get_itinerary_by_id,
     process_chat_and_update,
-    get_chat_history
+    get_chat_history,
+    delete_itinerary  # Added delete service import
 )
+from services.export_service import generate_itinerary_markdown  # Added export service import
 
 # --------------------------------------------------
 # Load environment variables
@@ -171,7 +173,7 @@ async def generate_itinerary(
         if not user_email:
             raise HTTPException(status_code=401, detail="Unauthorized")
 
-        model = genai.GenerativeModel("gemini-2.5-flash")
+        model = genai.GenerativeModel("gemini-2.5-flash-lite")
         prompt = build_itinerary_prompt(data)
         response = model.generate_content(prompt)
 
@@ -274,3 +276,59 @@ async def get_itinerary_chat_history(
         "success": True,
         "data": get_chat_history(itinerary_id)
     }
+
+# --------------------------------------------------
+# NEW: Export Itinerary Route
+# --------------------------------------------------
+@app.get("/api/itineraries/{itinerary_id}/export")
+async def export_itinerary_endpoint(
+    itinerary_id: int,
+    credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme)
+):
+    decoded_token = firebase_auth.verify_id_token(credentials.credentials)
+    user_email = decoded_token.get("email")
+
+    # Get itinerary and validate ownership
+    itinerary_data = get_itinerary_by_id(itinerary_id, user_email)
+    if not itinerary_data:
+        raise HTTPException(status_code=404, detail="Itinerary not found or access denied")
+
+    # Format into Markdown
+    # We pass a combined dictionary that looks like the expected structure
+    export_payload = {
+        "destination": itinerary_data["destination"],
+        "start_date": itinerary_data["start_date"],
+        "end_date": itinerary_data["end_date"],
+        "preferences": itinerary_data["preferences"],
+        "itinerary_data": itinerary_data["itinerary"].get("days", [])
+    }
+    
+    markdown_content = generate_itinerary_markdown(export_payload)
+    
+    filename = f"{itinerary_data['destination'].replace(' ', '_')}_itinerary.md"
+    
+    return Response(
+        content=markdown_content,
+        media_type="text/markdown",
+        headers={
+            "Content-Disposition": f"attachment; filename={filename}"
+        }
+    )
+
+# --------------------------------------------------
+# NEW: Delete Itinerary Route
+# --------------------------------------------------
+@app.delete("/api/itineraries/{itinerary_id}")
+async def delete_itinerary_endpoint(
+    itinerary_id: int,
+    credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme)
+):
+    decoded_token = firebase_auth.verify_id_token(credentials.credentials)
+    user_email = decoded_token.get("email")
+
+    success = delete_itinerary(itinerary_id, user_email)
+    
+    if not success:
+        raise HTTPException(status_code=404, detail="Could not delete itinerary. Access denied or not found.")
+
+    return {"success": True, "message": "Itinerary and chat history deleted successfully"}

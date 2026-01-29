@@ -2,7 +2,7 @@ import { auth } from "../config/firebase";
 
 const API_URL = "http://localhost:8000";
 
-/* ---------------- TOKEN ---------------- */
+/* ---------------- TOKEN HELPER ---------------- */
 const getToken = async () => {
   const user = auth.currentUser;
   if (!user) {
@@ -84,19 +84,6 @@ export const getItineraryById = async (id) => {
 };
 
 /* ---------------- CHAT: SEND MESSAGE ---------------- */
-/**
- * 🔑 UPDATED:
- * - Backend now returns:
- *   {
- *     success,
- *     response_message,
- *     updated_itinerary,
- *     updated_preferences,
- *     chat_history
- *   }
- * - We return FULL response so UI can update
- *   BOTH itinerary + preferences
- */
 export const sendChatMessage = async (itineraryId, message) => {
   const token = await getToken();
   const res = await fetch(
@@ -122,7 +109,7 @@ export const sendChatMessage = async (itineraryId, message) => {
     throw new Error(data?.detail || "Failed to send message");
   }
 
-  return data; // ← IMPORTANT: includes updated_preferences
+  return data;
 };
 
 /* ---------------- CHAT: GET HISTORY ---------------- */
@@ -151,10 +138,64 @@ export const getChatHistory = async (itineraryId) => {
   return data;
 };
 
-/* ---------------- PUT: UPDATE (unchanged) ---------------- */
+/* ---------------- DOWNLOAD: EXPORT MARKDOWN ---------------- */
+// Renamed to exportItinerary for consistency with component calls
+export const exportItinerary = async (id, title) => {
+  const token = await getToken();
+  const res = await fetch(`${API_URL}/api/itineraries/${id}/export`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to download itinerary file");
+  }
+
+  // Handle file download as a blob
+  const blob = await res.blob();
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  
+  // Clean filename logic
+  const safeTitle = title ? title.replace(/\s+/g, '_') : 'My';
+  link.setAttribute('download', `${safeTitle}_Itinerary.md`);
+  
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
+};
+
+/* ---------------- DELETE: REMOVE ITINERARY ---------------- */
+export const deleteItinerary = async (id) => {
+  const token = await getToken();
+  const res = await fetch(`${API_URL}/api/itineraries/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  let data;
+  try {
+    data = await res.json();
+  } catch {
+    throw new Error("Invalid server response");
+  }
+
+  if (!res.ok || !data?.success) {
+    throw new Error(data?.detail || "Failed to delete itinerary");
+  }
+
+  return data;
+};
+
+/* ---------------- PUT: UPDATE (Optional Utility) ---------------- */
 export const updateItinerary = async (id, updatedData) => {
   const token = await getToken();
-  const res = await fetch(`${API_URL}/api/itinerary/${id}`, {
+  const res = await fetch(`${API_URL}/api/itineraries/${id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -172,30 +213,6 @@ export const updateItinerary = async (id, updatedData) => {
 
   if (!res.ok || !data?.success) {
     throw new Error(data?.detail || "Failed to update itinerary");
-  }
-
-  return data;
-};
-
-/* ---------------- DELETE (unchanged) ---------------- */
-export const deleteItinerary = async (id) => {
-  const token = await getToken();
-  const res = await fetch(`${API_URL}/api/itinerary/${id}`, {
-    method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  let data;
-  try {
-    data = await res.json();
-  } catch {
-    throw new Error("Invalid server response");
-  }
-
-  if (!res.ok || !data?.success) {
-    throw new Error(data?.detail || "Failed to delete itinerary");
   }
 
   return data;
