@@ -1,69 +1,101 @@
 import { useEffect, useState } from "react";
 import { getUserItineraries } from "../services/itineraryService";
 import ItineraryCard from "./ItineraryCard";
-import { useNavigate } from "react-router-dom";
 
-export default function ItineraryList() {
+export default function ItineraryList({ onCountChange }) {
   const [itineraries, setItineraries] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const navigate = useNavigate();
+  const [index, setIndex] = useState(0);
 
   useEffect(() => {
     const fetchItineraries = async () => {
       try {
         const res = await getUserItineraries();
-        setItineraries(res.data || []);
-      } catch (err) {
-        setError("Failed to load itineraries");
+        const data = res.data || [];
+
+        setItineraries(data);
+
+        onCountChange?.(data.length);
       } finally {
         setLoading(false);
       }
     };
+
     fetchItineraries();
-  }, []);
+  }, [onCountChange]);
+
+  const handleDeleted = (id) => {
+    setItineraries((prev) => {
+      const updated = prev.filter((it) => it.id !== id);
+
+      onCountChange?.(updated.length);
+
+      if (index >= updated.length && index > 0) {
+        setIndex(Math.max(0, index - 3));
+      }
+
+      return updated;
+    });
+  };
+
+  const showNext = () => {
+    if (index + 3 < itineraries.length) setIndex(index + 3);
+  };
+
+  const showPrev = () => {
+    if (index - 3 >= 0) setIndex(index - 3);
+  };
+
+  const visibleItineraries = itineraries.slice(index, index + 3);
 
   if (loading) {
     return (
-      <div className="text-center py-20 px-10 text-lg font-semibold text-white">
-        <div className="animate-pulse">Exploring your journeys...</div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="text-center py-20 px-10 text-red-400 font-semibold">
-        {error}
+      <div className="flex gap-8">
+        {[1, 2, 3].map((i) => (
+          <div
+            key={i}
+            className="w-[300px] h-[380px] rounded-2xl bg-white/10 animate-pulse"
+          />
+        ))}
       </div>
     );
   }
 
   if (itineraries.length === 0) {
-    return (
-      <div className="text-center py-24 max-w-md mx-auto">
-        <h2 className="text-3xl font-black mb-4 text-white">
-          No trips planned yet ✈️
-        </h2>
-        <p className="text-white/70 mb-10 text-lg">
-          Ready to escape the ordinary? Let our AI design a journey perfectly
-          tailored to you.
-        </p>
-        <button
-          onClick={() => navigate("/create-itinerary")}
-          className="px-10 py-4 border-2 border-blue-400 text-blue-400 rounded-full font-bold hover:bg-blue-400 hover:text-gray-900 transition-all duration-300"
-        >
-          Start your journey →
-        </button>
-      </div>
-    );
+    return null;
   }
 
   return (
-    <div className="grid gap-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 justify-items-center justify-center">
-      {itineraries.map((itinerary) => (
-        <ItineraryCard key={itinerary.id} itinerary={itinerary} />
-      ))}
+    <div className="flex flex-col items-center gap-10">
+      <div className="flex gap-8">
+        {visibleItineraries.map((itinerary) => (
+          <ItineraryCard
+            key={itinerary.id}
+            itinerary={itinerary}
+            onDeleteSuccess={handleDeleted}
+          />
+        ))}
+      </div>
+
+      <div className="flex gap-16 text-blue-400 font-bold uppercase tracking-widest">
+        {index > 0 && (
+          <button
+            onClick={showPrev}
+            className="hover:text-blue-300 transition-colors"
+          >
+            ← View Less
+          </button>
+        )}
+
+        {index + 3 < itineraries.length && (
+          <button
+            onClick={showNext}
+            className="hover:text-blue-300 transition-colors"
+          >
+            View More →
+          </button>
+        )}
+      </div>
     </div>
   );
 }

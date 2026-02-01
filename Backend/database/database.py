@@ -2,6 +2,7 @@ import sqlite3
 
 DB_NAME = "itineraries.db"
 
+
 def get_db_connection():
     conn = sqlite3.connect(DB_NAME)
     conn.row_factory = sqlite3.Row
@@ -13,7 +14,8 @@ def init_db():
     cursor = conn.cursor()
 
     # Existing itineraries table
-    cursor.execute("""
+    cursor.execute(
+        """
     CREATE TABLE IF NOT EXISTS itineraries (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id TEXT,
@@ -25,10 +27,12 @@ def init_db():
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
-    """)
+    """
+    )
 
     # NEW: Chat messages table
-    cursor.execute("""
+    cursor.execute(
+        """
     CREATE TABLE IF NOT EXISTS chat_messages (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         itinerary_id INTEGER,
@@ -37,13 +41,16 @@ def init_db():
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (itinerary_id) REFERENCES itineraries(id) ON DELETE CASCADE
     )
-    """)
+    """
+    )
 
     # Index for faster chat history queries
-    cursor.execute("""
+    cursor.execute(
+        """
     CREATE INDEX IF NOT EXISTS idx_chat_itinerary 
     ON chat_messages(itinerary_id)
-    """)
+    """
+    )
 
     conn.commit()
     conn.close()

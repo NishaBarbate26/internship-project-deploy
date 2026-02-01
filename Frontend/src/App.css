@@ -3,7 +3,6 @@
 @tailwind utilities;
 
 @layer components {
-  /* Smooth Fade-in Animation */
   .fade-in-up {
     animation: fadeInUp 0.8s ease-out forwards;
   }
@@ -20,7 +19,6 @@
     }
   }
 
-  /* Image Zoom Effect */
   .img-zoom-container {
     @apply overflow-hidden rounded-2xl;
   }
@@ -33,12 +31,10 @@
     @apply scale-110;
   }
 
-  /* Glass Card */
   .glass-card {
     @apply bg-white/70 backdrop-blur-lg border border-white/20 shadow-xl;
   }
 
-  /* Floating Animation for Hero Image */
   .floating {
     animation: float 6s ease-in-out infinite;
   }
@@ -60,11 +56,10 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    /* Ensure NO transform/rotate is here */
+
     border-radius: 12px;
   }
 
-  /* Optional: Keep the floating animation but remove rotation */
   .floating {
     animation: float 6s ease-in-out infinite;
   }

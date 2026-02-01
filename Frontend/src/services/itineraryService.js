@@ -138,8 +138,6 @@ export const getChatHistory = async (itineraryId) => {
   return data;
 };
 
-/* ---------------- DOWNLOAD: EXPORT MARKDOWN ---------------- */
-// Renamed to exportItinerary for consistency with component calls
 export const exportItinerary = async (id, title) => {
   const token = await getToken();
   const res = await fetch(`${API_URL}/api/itineraries/${id}/export`, {
@@ -152,13 +150,11 @@ export const exportItinerary = async (id, title) => {
     throw new Error("Failed to download itinerary file");
   }
 
-  // Handle file download as a blob
   const blob = await res.blob();
   const url = window.URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
   
-  // Clean filename logic
   const safeTitle = title ? title.replace(/\s+/g, '_') : 'My';
   link.setAttribute('download', `${safeTitle}_Itinerary.md`);
   
@@ -168,7 +164,7 @@ export const exportItinerary = async (id, title) => {
   window.URL.revokeObjectURL(url);
 };
 
-/* ---------------- DELETE: REMOVE ITINERARY ---------------- */
+
 export const deleteItinerary = async (id) => {
   const token = await getToken();
   const res = await fetch(`${API_URL}/api/itineraries/${id}`, {
@@ -192,7 +188,7 @@ export const deleteItinerary = async (id) => {
   return data;
 };
 
-/* ---------------- PUT: UPDATE (Optional Utility) ---------------- */
+
 export const updateItinerary = async (id, updatedData) => {
   const token = await getToken();
   const res = await fetch(`${API_URL}/api/itineraries/${id}`, {

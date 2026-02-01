@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Download } from "lucide-react"; // Assuming you use lucide-react, otherwise use a string icon
+import { Download } from "lucide-react";
 
 const ExportButton = ({ itineraryId, destination }) => {
   const [isExporting, setIsExporting] = useState(false);
@@ -7,7 +7,6 @@ const ExportButton = ({ itineraryId, destination }) => {
   const handleExport = async () => {
     setIsExporting(true);
     try {
-      // Replace with your actual API base URL
       const response = await fetch(`/api/itineraries/${itineraryId}/export`, {
         method: "GET",
         headers: {

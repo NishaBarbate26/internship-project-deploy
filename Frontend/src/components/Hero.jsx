@@ -1,48 +1,60 @@
+import { ChevronDown } from "lucide-react";
+
 const Hero = () => {
-    return (
-        <section className="relative h-[75vh] w-full overflow-hidden">
+  const handleScrollDown = () => {
+    window.scrollBy({ top: window.innerHeight, behavior: "smooth" });
+  };
 
-            {/* Background Image */}
-            <img
-                src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=2000"
-                alt="Beach"
-                className="absolute inset-0 w-full h-full object-cover"
-            />
+  return (
+    <section className="relative h-screen w-full overflow-hidden bg-black">
+      {/* Video Background Container */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        <iframe
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 min-w-full min-h-full"
+          style={{
+            width: "100vw",
+            height: "56.25vw", // 16:9 Aspect Ratio
+            minHeight: "100vh",
+            minWidth: "177.77vh", // 16:9 Aspect Ratio
+          }}
+          src="https://www.youtube.com/embed/RFmQSO2fO30?autoplay=1&mute=1&loop=1&playlist=RFmQSO2fO30&controls=0&showinfo=0&modestbranding=1&rel=0&iv_load_policy=3&enablejsapi=1"
+          title="Background Video"
+          allow="autoplay; encrypted-media"
+          frameBorder="0"
+        />
+      </div>
 
-            {/* Overlay */}
-            <div className="absolute inset-0 bg-black/30" />
+      {/* Dark Overlay */}
+      <div className="absolute inset-0 bg-black/40 z-10" />
 
-            {/* Content */}
-            <div className="relative z-10 h-full flex flex-col justify-center items-center text-center px-6">
-                <h1 className="text-white text-6xl font-extrabold tracking-wide">
-                    TRAVEL JOURNEY
-                </h1>
+      {/* Center Content */}
+      <div className="relative z-20 h-full flex flex-col items-center justify-center text-center px-6">
+        <h1 className="text-white text-6xl md:text-8xl font-black tracking-tighter uppercase">
+          TRAVEL JOURNEY
+        </h1>
 
-                <span className="text-white text-4xl italic font-light mt-2">
-                    Guide
-                </span>
+        <span className="text-white text-4xl md:text-5xl font-script mt-2">
+          Guide
+        </span>
 
-                <p className="text-white/90 text-lg mt-4">
-                    Your journey starts here
-                </p>
+        <p className="text-white/90 text-xl md:text-2xl mt-8 font-medium">
+          Your journey starts here
+        </p>
+      </div>
 
-                {/* Search Bar */}
-                <div className="mt-8 flex items-center bg-white rounded-full shadow-lg overflow-hidden w-full max-w-xl">
-                    <input
-                        type="text"
-                        placeholder="Search for a destination or activity..."
-                        className="flex-1 px-6 py-4 outline-none text-gray-700"
-                    />
-                    <button className="bg-blue-600 text-white px-8 py-4 font-semibold hover:bg-blue-700 transition">
-                        Explore
-                    </button>
-                </div>
-            </div>
-
-            {/* Bottom Fade (UX hint that content continues) */}
-            <div className="absolute bottom-0 left-0 w-full h-40 bg-gradient-to-t from-whit-100 via-slate-100/70 to-transparent" />
-        </section>
-    );
+      <div
+        className="absolute bottom-10 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-2 cursor-pointer select-none"
+        onClick={handleScrollDown}
+        role="button"
+        aria-label="Scroll down"
+      >
+        <span className="text-white/90 text-xs tracking-widest uppercase font-bold animate-pulse">
+          Scroll Down
+        </span>
+        <ChevronDown className="w-6 h-6 text-white animate-bounce" />
+      </div>
+    </section>
+  );
 };
 
 export default Hero;

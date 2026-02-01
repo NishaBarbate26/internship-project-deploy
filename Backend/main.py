@@ -288,25 +288,22 @@ async def export_itinerary_endpoint(
     decoded_token = firebase_auth.verify_id_token(credentials.credentials)
     user_email = decoded_token.get("email")
 
-    # Get itinerary and validate ownership
     itinerary_data = get_itinerary_by_id(itinerary_id, user_email)
     if not itinerary_data:
         raise HTTPException(status_code=404, detail="Itinerary not found or access denied")
 
-    # Format into Markdown
-    # We pass a combined dictionary that looks like the expected structure
     export_payload = {
         "destination": itinerary_data["destination"],
         "start_date": itinerary_data["start_date"],
         "end_date": itinerary_data["end_date"],
         "preferences": itinerary_data["preferences"],
-        "itinerary_data": itinerary_data["itinerary"].get("days", [])
+        "itinerary_data": itinerary_data["itinerary"]
     }
-    
+
     markdown_content = generate_itinerary_markdown(export_payload)
-    
+
     filename = f"{itinerary_data['destination'].replace(' ', '_')}_itinerary.md"
-    
+
     return Response(
         content=markdown_content,
         media_type="text/markdown",
