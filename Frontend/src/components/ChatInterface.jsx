@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import ChatMessage from "./ChatMessage";
 import ChatInput from "./ChatInput";
 import { sendChatMessage, getChatHistory } from "../services/itineraryService";
@@ -10,7 +10,8 @@ export default function ChatInterface({ itineraryId, onItineraryUpdate }) {
   const [initialLoading, setInitialLoading] = useState(true);
   const [error, setError] = useState("");
 
-  /* ---------------- Load Chat History ---------------- */
+  const lockedStartDateRef = useRef(null);
+
   useEffect(() => {
     const loadHistory = async () => {
       try {
@@ -27,11 +28,28 @@ export default function ChatInterface({ itineraryId, onItineraryUpdate }) {
     if (itineraryId) loadHistory();
   }, [itineraryId]);
 
-  /* ---------------- Send Message ---------------- */
   const handleSendMessage = async (text) => {
     try {
-      setLoading(true);
       setError("");
+
+      /* ========= UI-SIDE DATE VALIDATION ========= */
+      const dates = extractDates(text);
+
+      if (dates.length) {
+        const parsedDates = dates.map((d) => {
+          const parts = d.split(/[-/]/);
+          const year = parts[2].length === 2 ? "20" + parts[2] : parts[2];
+          return new Date(`${year}-${parts[1]}-${parts[0]}`);
+        });
+
+        if (parsedDates.some(isPastDate)) {
+          setError("You cannot change itinerary to past dates");
+          return; // BLOCK API CALL
+        }
+      }
+      /* =========================================== */
+
+      setLoading(true);
 
       const userMsg = { role: "user", content: text };
       setMessages((prev) => [...prev, userMsg]);
@@ -40,23 +58,34 @@ export default function ChatInterface({ itineraryId, onItineraryUpdate }) {
 
       if (res && res.success) {
         const responseData = res.data || res;
+
         onItineraryUpdate({
           updated_itinerary: responseData.updated_itinerary,
           updated_preferences: responseData.updated_preferences,
         });
+
         setMessages(responseData.chat_history || []);
       }
     } catch (err) {
-      console.error("Chat Error:", err);
       setError("Chat failed. Please try again.");
     } finally {
       setLoading(false);
     }
   };
+  const isPastDate = (dateStr) => {
+    const d = new Date(dateStr);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return d < today;
+  };
 
+  const extractDates = (text) => {
+    const regex = /(\d{2}[-/]\d{2}[-/]\d{4})|(\d{2}[-/]\d{2}[-/]\d{2})/g;
+    return text.match(regex) || [];
+  };
   return (
     <div className="flex flex-col h-full bg-slate-900/40 backdrop-blur-2xl rounded-[2.5rem] border border-white/10 shadow-2xl overflow-hidden">
-      {/* Enhanced Header */}
+      {/* Header */}
       <div className="px-8 py-6 border-b border-white/10 bg-white/5">
         <h3 className="text-blue-400 font-black text-sm uppercase tracking-[0.2em] flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
@@ -64,7 +93,7 @@ export default function ChatInterface({ itineraryId, onItineraryUpdate }) {
         </h3>
       </div>
 
-      {/* Messages Area */}
+      {/* Messages */}
       <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6 scrollbar-hide">
         {initialLoading ? (
           <div className="flex flex-col justify-center items-center h-full space-y-3">
@@ -88,24 +117,17 @@ export default function ChatInterface({ itineraryId, onItineraryUpdate }) {
               <ChatMessage key={i} message={m} />
             ))}
 
-            {/* Wavy Typing Indicator */}
             {loading && (
               <div className="flex items-center gap-2 px-4 py-3 bg-white/5 rounded-2xl w-fit border border-white/10 animate-pulse">
                 <span className="text-xs font-bold text-blue-400 uppercase tracking-widest">
                   AI is thinking
                 </span>
-                <div className="flex gap-1 items-end h-3">
-                  <div className="w-1 h-1 bg-blue-400 rounded-full animate-[bounce_1s_infinite_0ms]"></div>
-                  <div className="w-1 h-1 bg-blue-400 rounded-full animate-[bounce_1s_infinite_200ms]"></div>
-                  <div className="w-1 h-1 bg-blue-400 rounded-full animate-[bounce_1s_infinite_400ms]"></div>
-                </div>
               </div>
             )}
           </>
         )}
       </div>
 
-      {/* Error Handling */}
       {error && (
         <div className="mx-6 mb-2 px-4 py-2 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-[11px] text-center font-bold uppercase tracking-wider">
           {error}

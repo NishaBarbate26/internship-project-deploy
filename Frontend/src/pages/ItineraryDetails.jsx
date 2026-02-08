@@ -67,15 +67,29 @@ export default function ItineraryDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
-
   useEffect(() => {
     let isMounted = true;
+
     const fetchItinerary = async () => {
       try {
         setLoading(true);
         const res = await getItineraryById(itinerary_id);
+
         if (isMounted) {
-          setItinerary(res.data);
+          let data = res.data;
+          if (data?.start_date && data?.itinerary?.days?.length) {
+            const start = new Date(data.start_date);
+            start.setDate(start.getDate() + data.itinerary.days.length - 1);
+            const computedEndDate = start.toISOString().split("T")[0];
+
+            if (data.end_date !== computedEndDate) {
+              data = {
+                ...data,
+                end_date: computedEndDate,
+              };
+            }
+          }
+          setItinerary(data);
           setError("");
         }
       } catch (err) {
@@ -84,7 +98,9 @@ export default function ItineraryDetails() {
         if (isMounted) setLoading(false);
       }
     };
+
     fetchItinerary();
+
     return () => {
       isMounted = false;
     };
@@ -92,13 +108,29 @@ export default function ItineraryDetails() {
 
   const handleItineraryUpdate = (updateData) => {
     const { updated_itinerary, updated_preferences } = updateData;
-    setItinerary((prev) => ({
-      ...prev,
-      itinerary: updated_itinerary || prev.itinerary,
-      preferences: updated_preferences
-        ? { ...prev.preferences, ...updated_preferences }
-        : prev.preferences,
-    }));
+
+    setItinerary((prev) => {
+      const finalItinerary = updated_itinerary || prev.itinerary;
+
+      /* ======= ADDED LOGIC (DO NOT REMOVE ANYTHING ELSE) ======= */
+      let recalculatedEndDate = prev.end_date;
+
+      if (prev.start_date && finalItinerary?.days?.length) {
+        const start = new Date(prev.start_date);
+        start.setDate(start.getDate() + finalItinerary.days.length - 1);
+        recalculatedEndDate = start.toISOString().split("T")[0];
+      }
+      /* ======================================================== */
+
+      return {
+        ...prev,
+        itinerary: finalItinerary,
+        preferences: updated_preferences
+          ? { ...prev.preferences, ...updated_preferences }
+          : prev.preferences,
+        end_date: recalculatedEndDate, // ← ONLY NEW FIELD ADDED
+      };
+    });
   };
 
   const handleDelete = async () => {
