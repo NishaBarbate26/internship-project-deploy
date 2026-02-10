@@ -9,10 +9,10 @@ export default function CreateItinerary() {
     <div
       className="min-h-screen bg-cover bg-center relative"
       style={{
-        backgroundImage:
-          "url('https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=2000&q=80')",
+        backgroundImage: "url('/images/auth-bg.avif')",
       }}
     >
+      {/* Overlay */}
       <div className="absolute inset-0 bg-black/30 backdrop-blur-[3px]" />
 
       <div className="relative z-10 max-w-6xl mx-auto px-6 py-20">
@@ -33,7 +33,7 @@ export default function CreateItinerary() {
           </p>
         </div>
 
-        {/* ✅ SAME FORM – EXTRACTED */}
+        {/* Itinerary Form */}
         <ItineraryForm />
       </div>
     </div>

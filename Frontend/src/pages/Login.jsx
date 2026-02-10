@@ -6,16 +6,16 @@ export default function Login() {
     <div
       className="min-h-screen relative flex items-center justify-center"
       style={{
-        backgroundImage:
-          "url('https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&q=80&w=2000')",
+        backgroundImage: "url('/images/auth-bg.avif')",
         backgroundSize: "cover",
         backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
       }}
     >
-      {/* Dark overlay — unchanged */}
+      {/* Dark overlay */}
       <div className="absolute inset-0 bg-black/40" />
 
-      {/* Logo (top-left) */}
+      {/* Logo */}
       <div className="absolute top-6 left-6 z-20">
         <Link to="/" className="text-white text-2xl font-bold tracking-tighter">
           TRAVEL
@@ -23,6 +23,7 @@ export default function Login() {
         </Link>
       </div>
 
+      {/* Login Form */}
       <div className="relative z-10 w-full max-w-md">
         <LoginForm />
       </div>

@@ -191,10 +191,10 @@ export default function ItineraryDetails() {
       <div
         className="fixed inset-0 opacity-40 bg-cover bg-center"
         style={{
-          backgroundImage:
-            "url('https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=2000&q=80')",
+          backgroundImage: "url('/images/itinerary-details-bg.avif')",
         }}
       />
+
       <div className="fixed inset-0 bg-black/40" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 py-10">

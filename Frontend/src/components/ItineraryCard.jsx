@@ -20,6 +20,55 @@ const images = {
     "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=1200&q=80",
   manali:
     "https://images.unsplash.com/photo-1621330396167-b3d2c5f79de3?auto=format&fit=crop&w=1200&q=80",
+
+  paris:
+    "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=1200&q=80",
+  london:
+    "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=1200&q=80",
+  italy:
+    "https://images.unsplash.com/photo-1516483638261-f4dbaf036963?auto=format&fit=crop&w=1200&q=80",
+  switzerland:
+    "https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?auto=format&fit=crop&w=1200&q=80",
+  greece:
+    "https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=1200&q=80",
+
+  newyork:
+    "https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?auto=format&fit=crop&w=1200&q=80",
+  brazil:
+    "https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5?auto=format&fit=crop&w=1200&q=80",
+  canada:
+    "https://images.unsplash.com/photo-1503614472-8c93d56e92ce?auto=format&fit=crop&w=1200&q=80",
+  mexico:
+    "https://images.unsplash.com/photo-1518105779142-d975b22f1b0a?auto=format&fit=crop&w=1200&q=80",
+
+  dubai:
+    "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1200&q=80",
+  egypt:
+    "https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?auto=format&fit=crop&w=1200&q=80",
+  morocco:
+    "https://images.unsplash.com/photo-1539020140153-e479b8c22e70?auto=format&fit=crop&w=1200&q=80",
+
+  singapore:
+    "https://images.unsplash.com/photo-1525598912003-663126343e1f?auto=format&fit=crop&w=1200&q=80",
+  australia:
+    "https://images.unsplash.com/photo-1523482580672-f109ba8cb9be?auto=format&fit=crop&w=1200&q=80",
+  vietnam:
+    "https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1200&q=80",
+  maldives:
+    "https://images.unsplash.com/photo-1514282401047-d79a71a590e8?auto=format&fit=crop&w=1200&q=80",
+};
+
+const fallbackImages = [
+  "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1200&q=80",
+];
+
+const getFallbackImage = (destination) => {
+  if (!destination) return fallbackImages[0];
+  const index = destination.length % fallbackImages.length;
+  return fallbackImages[index];
 };
 
 export default function ItineraryCard({ itinerary, onDeleteSuccess }) {
@@ -28,9 +77,12 @@ export default function ItineraryCard({ itinerary, onDeleteSuccess }) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
 
+  const destinationKey = itinerary.destination
+    ?.toLowerCase()
+    .replace(/\s+/g, "");
+
   const image =
-    images[itinerary.destination?.toLowerCase()] ||
-    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80";
+    images[destinationKey] || getFallbackImage(itinerary.destination);
 
   const createdDate = itinerary.created_at
     ? new Date(itinerary.created_at).toLocaleDateString()
@@ -67,13 +119,18 @@ export default function ItineraryCard({ itinerary, onDeleteSuccess }) {
             state: { itinerary: itinerary.itinerary },
           })
         }
-        className={`relative w-[300px] h-[380px] rounded-[1.8rem] overflow-hidden cursor-pointer group shadow-[0_25px_60px_rgba(0,0,0,0.45)] transition-transform duration-500 hover:-translate-y-3 hover:scale-[1.02] ${isDeleting ? "opacity-50 pointer-events-none" : ""}`}
+        className={`relative w-[300px] h-[380px] rounded-[1.8rem] overflow-hidden cursor-pointer group shadow-[0_25px_60px_rgba(0,0,0,0.45)] transition-transform duration-500 hover:-translate-y-3 hover:scale-[1.02] ${
+          isDeleting ? "opacity-50 pointer-events-none" : ""
+        }`}
       >
         <img
           src={image}
           alt={itinerary.destination}
+          loading="lazy"
+          onError={(e) => (e.target.src = fallbackImages[0])}
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
+
         <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
 
         <div className="absolute top-4 right-4 flex gap-3 z-10">
@@ -114,7 +171,7 @@ export default function ItineraryCard({ itinerary, onDeleteSuccess }) {
 
       <DeleteConfirmation
         isOpen={isDeleteModalOpen}
-        onCancel={() => setIsDeleteModalOpen(false)} // This now matches DeleteConfirmation props
+        onCancel={() => setIsDeleteModalOpen(false)}
         onConfirm={handleDeleteConfirm}
         itemName={itinerary.destination}
       />

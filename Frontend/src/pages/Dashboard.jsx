@@ -24,8 +24,7 @@ export default function Dashboard() {
     <div
       className="min-h-screen bg-cover bg-center relative transition-all duration-700"
       style={{
-        backgroundImage:
-          "url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=2000&q=80')",
+        backgroundImage: "url('/images/dashboard-bg.avif')",
       }}
     >
       {/* Overlay */}
@@ -101,12 +100,7 @@ export default function Dashboard() {
         <main className="flex-grow w-full px-6 mb-20 flex justify-center">
           <div className="w-fit max-w-7xl h-fit bg-white/10 backdrop-blur-xl rounded-[2.5rem] border border-white/20 px-6 py-10 md:px-12 shadow-2xl transition-all duration-500">
             {!hasItineraries && (
-              <div
-                className="flex flex-col items-center justify-center text-center 
-                py-16 px-6 
-                -mt-16
-                max-w-xl mx-auto"
-              >
+              <div className="flex flex-col items-center justify-center text-center py-16 px-6 -mt-16 max-w-xl mx-auto">
                 <FaMapMarkedAlt className="text-6xl text-blue-400 mb-6 opacity-80" />
 
                 <h2 className="text-3xl font-black text-white mb-4">
