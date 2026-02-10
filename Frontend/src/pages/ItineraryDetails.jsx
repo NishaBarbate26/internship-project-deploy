@@ -276,7 +276,7 @@ export default function ItineraryDetails() {
                   label="Interests"
                   value={
                     Array.isArray(prefs.interests)
-                      ? prefs.interests[0]
+                      ? prefs.interests.join(", ")
                       : prefs.interests
                   }
                 />
