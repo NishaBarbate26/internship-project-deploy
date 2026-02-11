@@ -1,6 +1,6 @@
 import { auth } from "../config/firebase";
 
-const API_URL = "http://localhost:8000";
+const API_URL = "https://travel-guide-backend-fn4x.onrender.com";
 
 /* ---------------- TOKEN HELPER ---------------- */
 const getToken = async () => {
