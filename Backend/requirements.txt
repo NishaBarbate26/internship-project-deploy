@@ -6,3 +6,4 @@ sqlalchemy
 langchain
 langchain-google-genai
 langchain-core
+firebase-admin
