@@ -8,3 +8,4 @@ wheels/
 
 # Virtual environments
 .venv
+firebase_service_account.json
